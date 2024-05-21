@@ -26,7 +26,7 @@ conda activate rfadv
 Pretrained models can be found in [this release](https://github.com/Restuccia-Group/HyperAdv/releases/tag/pretrained-models)
 
 ## Code Usage
-
+```
 python run_experiment.py -h
 usage: run_experiment.py [-h] [-dnn] [-md] [-dp] [-cp] [-d] [-bs] [-t]
 
@@ -42,3 +42,4 @@ options:
   -d , --device        specify the gpu device, -1 means cpu (default: 0)
   -bs , --Batch_size   specify the batchsize (default: 1024)
   -t, --Test_only      Specify training or testing (default: False)
+```
