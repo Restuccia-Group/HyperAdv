@@ -50,7 +50,7 @@ def run_exp():
     radioML_train,radioML_test = random_split(radioML,[train_size,test_size],torch.Generator().manual_seed(42))
 
     lr = 0.0001
-    epochs = 1
+    epochs = 50
     patience = 20
     path = '%s/%s_%s.pth'%(args.Ckpt_path,args.DNN,args.Mode)
     if args.DNN == 'cnn':

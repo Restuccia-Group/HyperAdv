@@ -33,9 +33,9 @@ options:
   -dnn , --DNN         specify the classifier (cnn, hyper) (default: cnn)
   -md , --Mode         specify the training mode (nt, at, trades) (default:
                        nt)
-  -dp , --Data_path    specify the dataset directory (default: ../data/2018.01
-                       .OSC.0001_1024x2M.h5/2018.01/GOLD_XYZ_OSC.0001_1024.hdf
-                       5)
+  -dp , --Data_path    specify the dataset directory (default: ../dataset/2018
+                       .01.OSC.0001_1024x2M.h5/2018.01/GOLD_XYZ_OSC.0001_1024.
+                       hdf5)
   -cp , --Ckpt_path    specify the checkpoint directory (default: resource/)
   -d , --device        specify the gpu device, -1 means cpu (default: 0)
   -bs , --Batch_size   specify the batchsize (default: 1024)
