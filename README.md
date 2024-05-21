@@ -15,7 +15,7 @@ conda activate rfadv
 ## Models
 
 - DNN:
-    - baseline: basic 1d cnn model 
+    - cnn: basic 1d cnn model 
     - hyper: our hypernet model
 
 - Training Approach:
