@@ -21,7 +21,9 @@ conda activate rfadv
 - Training Approach:
     - nt: natural training with cross entropy
     - at: pgd-based adverasarial training [Paper](https://arxiv.org/pdf/1706.06083)
-    - trade: trades-style training [Paper](http://proceedings.mlr.press/v97/zhang19p/zhang19p-supp.pdf)
+    - trades: trades-style training [Paper](http://proceedings.mlr.press/v97/zhang19p/zhang19p-supp.pdf)
+
+Pretrained models can be found in [this release](https://github.com/Restuccia-Group/HyperAdv/releases/tag/pretrained-models)
 
 ## Code Usage
 
