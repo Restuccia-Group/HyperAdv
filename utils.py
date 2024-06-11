@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from torch import nn
-from torch.nn import CrossEntropyLoss
+from torch.nn import CrossEntropyLoss, MSELoss
 from pgd import PGD
 from trades import trades_loss
 from torch.utils.data import DataLoader
@@ -134,7 +134,67 @@ class TrainValHandler():
                 print('no improvement from last %d epoch, stop training' % patience)
                 break
         return history
+
+class TeachHandler():
+    def __init__(self, teacher_model, student_model, device, teach_lr, teach_epochs, patience, path) -> None:
+        self.teacher = teacher_model
+        self.student = student_model
+        self.device = device
+        self.teacher.to(self.device)
+        self.student.to(self.device)
+        self.teach_epochs = teach_epochs
+        self.teach_patience = patience
+        self.teach_lr = teach_lr
+        self.path = path
+
+    def teach(self):
+        min_loss = torch.inf
+        teach_loss = MSELoss()
+        student_modules = []
+        for module in self.student.modules():
+            if type(module) == torch.nn.Sequential:
+                student_modules.append(module)
+        teach_optim = [torch.optim.Adam(module.parameters(),lr=self.teach_lr) for module in student_modules]
+
+        patience = 0
+        dummy_input = torch.randn(1,2,1024).to(self.device)
+        self.teacher.eval()
+        with torch.no_grad():
+            teacher_output = self.teacher(dummy_input,training=True,teach=True)
+
+        for epoch in range(self.teach_epochs):
+            total_loss = 0
+            # training
+            self.student.train()
+            student_output = self.student(dummy_input,training=True,teach=True)
+            for i in range(len(student_output)):
+                teach_optim[i].zero_grad()
+                loss = teach_loss(student_output[i],teacher_output[i])
+                loss.backward()
+                teach_optim[i].step()
+            # testing
+            self.student.eval()
+            student_output = self.student(dummy_input,training=True,teach=True)
+            for i in range(len(student_output)):
+                loss = teach_loss(student_output[i],teacher_output[i])
+                total_loss += loss.item()
+            
+            print("iteration: %d, teach loss: %.6f"%(epoch,total_loss),end='\r')
+            if total_loss < min_loss:
+                min_loss = total_loss
+                patience = 0
+                self.saveModel()
+            else:
+                patience += 1
+            if patience == self.teach_patience:
+                print('no improvement from last %d epoch, teach loss: %.6f' % (patience,total_loss))
+                min_loss = torch.inf
+                patience = 0
+                break
     
+    def saveModel(self):
+        torch.save(self.student.state_dict(),self.path)
+
 class EvalHandler():
     def __init__(self, model, device, testset, batchsize, hyper) -> None:
         self.model = model
