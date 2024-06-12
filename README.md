@@ -14,18 +14,36 @@ conda activate rfadv
 
 ## Models
 
-- DNN:
-    - cnn: basic 1d cnn model 
-    - hyper: our hypernet model
+We first consider MLP as the backbone of hypernet, which produces promising results for both clean data and adversarial data. However, the main drawback to MLP is the computation complexity, making it impractical for resource-constrained scenarios. In practice, we split the second layer of MLP into n independent chunks, which can effectively reduce the number of parameters by n times. The modified architecture is depicted as follow
 
-- Training Approach:
-    - nt: natural training with cross entropy
-    - at: pgd-based adverasarial training [Paper](https://arxiv.org/pdf/1706.06083)
-    - trades: trades-style training [Paper](http://proceedings.mlr.press/v97/zhang19p/zhang19p-supp.pdf)
+![chunkwiselinear](./misc/chunkwise.pdf)
+
+Models under consideration:
+
+- cnn: the baseline 1d cnn model 
+- hyper-t: large hypernet model (teacher) using fully connected linear mappings
+- hyper-s: small hypernet model (student) using chunkwise linear mappings
 
 Pretrained models can be found in [this release](https://github.com/Restuccia-Group/HyperAdv/releases/tag/pretrained-models)
 
+## Training
+
+Remark that the dynamic approach can be an add-on to other static defensive training approaches. To this end, we also consider to train our hypernet with Adversarial Training (AT) and TRADES. 
+
+Training modes under consideration:
+
+- nt: natural training with cross entropy
+- at: pgd-based adverasarial training [Paper](https://arxiv.org/pdf/1706.06083)
+- trades: trades-style training [Paper](http://proceedings.mlr.press/v97/zhang19p/zhang19p-supp.pdf)
+
+While chunkwise linear can effectively reduce the model size, it hampers the classification performance using conventional end-to-end training. Thus, we use a multi-stage training to preserve the accuracy. Specifically, a large teacher model is first trained with end-to-end training and subsequently a small student model is trained by regressing the output of teacher model. Finally, we finetune the student model for one epoch. The whole procedure is depicted as follow
+
+![multistage](./misc/multi-stage.pdf)
+
 ## Code Usage
+
+To train or test the baseline cnn and hyper-t model
+
 ```
 python run_experiment.py -h
 usage: run_experiment.py [-h] [-dnn] [-md] [-dp] [-cp] [-d] [-bs] [-t]
@@ -42,4 +60,9 @@ options:
   -d , --device        specify the gpu device, -1 means cpu (default: 0)
   -bs , --Batch_size   specify the batchsize (default: 1024)
   -t, --Test_only      Specify training or testing (default: False)
+```
+
+To train or test the hyper-s model
+
+```
 ```
