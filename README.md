@@ -24,7 +24,7 @@ Models under consideration:
 - hyper: large hypernet model (teacher) using fully connected linear mappings
 - hyper-s: small hypernet model (student) using chunkwise linear mappings
 
-Pretrained models can be found in [this release](https://github.com/Restuccia-Group/HyperAdv/releases/tag/pretrained-models)
+Pretrained models can be found in [this release](https://github.com/Restuccia-Group/HyperAdv/releases/tag/pretrained-models-v1.0.0)
 
 ## Training
 
