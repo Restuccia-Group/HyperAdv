@@ -16,7 +16,7 @@ conda activate rfadv
 
 We first consider MLP as the backbone of hypernet, which produces promising results for both clean data and adversarial data. However, the main drawback to MLP is the computation complexity, making it impractical for resource-constrained scenarios. In practice, we split the second layer of MLP into n independent chunks, which can effectively reduce the number of parameters by n times. The modified architecture is depicted as follow
 
-![chunkwiselinear](./misc/chunkwise.pdf)
+![chunkwiselinear](./misc/chunkwise.png)
 
 Models under consideration:
 
@@ -38,7 +38,7 @@ Training modes under consideration:
 
 While chunkwise linear can effectively reduce the model size, it hampers the classification performance using conventional end-to-end training. Thus, we use a multi-stage training to preserve the accuracy. Specifically, a large teacher model is first trained with end-to-end training and subsequently a small student model is trained by regressing the output of teacher model. Finally, we finetune the student model for one epoch. The whole procedure is depicted as follow
 
-![multistage](./misc/multi-stage.pdf)
+![multistage](./misc/multi-stage.png)
 
 ## Code Usage
 
