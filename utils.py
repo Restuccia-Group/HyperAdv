@@ -136,7 +136,7 @@ class TrainValHandler():
         return history
 
 class TeachHandler():
-    def __init__(self, teacher_model, student_model, device, teach_lr, teach_epochs, patience, path) -> None:
+    def __init__(self, teacher_model, student_model, device, teach_lr, teach_epochs, patience) -> None:
         self.teacher = teacher_model
         self.student = student_model
         self.device = device
@@ -145,7 +145,6 @@ class TeachHandler():
         self.teach_epochs = teach_epochs
         self.teach_patience = patience
         self.teach_lr = teach_lr
-        self.path = path
 
     def teach(self):
         min_loss = torch.inf
@@ -183,7 +182,6 @@ class TeachHandler():
             if total_loss < min_loss:
                 min_loss = total_loss
                 patience = 0
-                self.saveModel()
             else:
                 patience += 1
             if patience == self.teach_patience:
@@ -191,9 +189,6 @@ class TeachHandler():
                 min_loss = torch.inf
                 patience = 0
                 break
-    
-    def saveModel(self):
-        torch.save(self.student.state_dict(),self.path)
 
 class EvalHandler():
     def __init__(self, model, device, testset, batchsize, hyper) -> None:

@@ -2,8 +2,8 @@ import torch
 import numpy as np
 from torch.utils.data import random_split
 from dataset import RadioML
-from utils import TrainValHandler,EvalHandler
-from model import HyperCNN,ConvNet
+from utils import TrainValHandler,TeachHandler,EvalHandler
+from model import HyperCNN,HyperCNNChunk
 import h5py
 import argparse
 import random
@@ -13,8 +13,6 @@ np.random.seed(42)
 
 def arguments_parser():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-dnn', '--DNN', type=str, metavar='', default='cnn',
-                        help = 'specify the classifier (cnn, hyper)')
     parser.add_argument('-md', '--Mode', type=str, metavar='', default='nt',
                         help = 'specify the training mode (nt, at, trades)')
     parser.add_argument('-dp', '--Data_path', type=str, metavar='', default='../dataset/2018.01.OSC.0001_1024x2M.h5/2018.01/GOLD_XYZ_OSC.0001_1024.hdf5',
@@ -31,7 +29,6 @@ def arguments_parser():
 
 def run_exp():
     args = arguments_parser()
-    assert args.DNN in ['cnn', 'hyper']
     assert args.Mode in ['nt', 'at', 'trades']
     # set up device
     cuda_id = torch.cuda.device_count()
@@ -48,25 +45,23 @@ def run_exp():
     train_size = int(0.8*len(radioML))
     test_size = len(radioML)-train_size
     radioML_train,radioML_test = random_split(radioML,[train_size,test_size],torch.Generator().manual_seed(42))
+    # set up teacher model
+    teacher_name = "%s/hyper_%s.pth"%(args.Ckpt_path,args.Mode)
+    teacher = HyperCNN(2,24,256,8)
+    teacher.load_state_dict(torch.load(teacher_name),strict=False)
+    # set up student model
+    student_name = "%s/hyper_s_%s.pth"%(args.Ckpt_path,args.Mode)
+    student = HyperCNNChunk(2,24,56,8,teacher.weight,teacher.bias)
 
-    lr = 0.0001
-    epochs = 50
-    patience = 20
-    path = '%s/%s_%s.pth'%(args.Ckpt_path,args.DNN,args.Mode)
-    if args.DNN == 'cnn':
-        model = ConvNet(2,24)
-        hyper = False
-    else:
-        model = HyperCNN(2,24,256,8)
-        hyper = True
-    
     if args.Test_only:
-        model.load_state_dict(torch.load(path),strict=False)
+        student.load_state_dict(torch.load(student_name),strict=False)
     else:
-        handler = TrainValHandler(model,device,radioML_train,radioML_test,args.Batch_size,lr,epochs,patience,path,args.Mode,hyper)
+        handler = TeachHandler(teacher,student,device,0.001,50000,10)
+        handler.teach()
+        handler = TrainValHandler(student,device,radioML_train,radioML_test,args.Batch_size,0.0001,1,1,student_name,args.Mode,True)
         handler.train()
 
-    handler = EvalHandler(model,device,radioML_test,args.Batch_size,hyper)
+    handler = EvalHandler(student,device,radioML_test,args.Batch_size,True)
 
     accuracy = handler.test()
     print("\n")

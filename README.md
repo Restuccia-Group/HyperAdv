@@ -21,7 +21,7 @@ We first consider MLP as the backbone of hypernet, which produces promising resu
 Models under consideration:
 
 - cnn: the baseline 1d cnn model 
-- hyper-t: large hypernet model (teacher) using fully connected linear mappings
+- hyper: large hypernet model (teacher) using fully connected linear mappings
 - hyper-s: small hypernet model (student) using chunkwise linear mappings
 
 Pretrained models can be found in [this release](https://github.com/Restuccia-Group/HyperAdv/releases/tag/pretrained-models)
@@ -42,7 +42,7 @@ While chunkwise linear can effectively reduce the model size, it hampers the cla
 
 ## Code Usage
 
-To train or test the baseline cnn and hyper-t model
+To train or test the baseline cnn and hyper model
 
 ```
 python run_experiment.py -h
@@ -65,4 +65,18 @@ options:
 To train or test the hyper-s model
 
 ```
+python run_hyper_s.py -h
+usage: run_hyper_s.py [-h] [-md] [-dp] [-cp] [-d] [-bs] [-t]
+
+options:
+  -h, --help           show this help message and exit
+  -md , --Mode         specify the training mode (nt, at, trades) (default:
+                       nt)
+  -dp , --Data_path    specify the dataset directory (default: ../dataset/2018
+                       .01.OSC.0001_1024x2M.h5/2018.01/GOLD_XYZ_OSC.0001_1024.
+                       hdf5)
+  -cp , --Ckpt_path    specify the checkpoint directory (default: resource/)
+  -d , --device        specify the gpu device, -1 means cpu (default: 0)
+  -bs , --Batch_size   specify the batchsize (default: 1024)
+  -t, --Test_only      Specify training or testing (default: False)
 ```
