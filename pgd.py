@@ -58,11 +58,6 @@ class PGD():
         xadv = self.clip(xadv,x).detach()
         forward_fn.eval()
         for i in range(self.n_iter):
-            if hyper:
-                output = forward_fn(xadv,False,ensemble)
-            else:
-                output = forward_fn(xadv)
-                
             xadv.requires_grad = True
             if hyper:
                 if self.advtrain:
